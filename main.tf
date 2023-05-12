@@ -30,6 +30,8 @@ locals {
     asynchronous = (var.async_config.s3_output_path != null && var.serverless_config.max_concurrency == null) ? true : false
     serverless = (var.async_config.s3_output_path == null && var.serverless_config.max_concurrency != null) ? true : false
   }
+  computed_image_tag = var.pytorch_version != null ? local.pytorch_image_tag[local.image_key] : local.tensorflow_image_tag[local.image_key]
+  image_tag = var.image_tag != null ? var.image_tag: local.computed_image_tag
 }
 
 # random lowercase string used for naming
@@ -48,7 +50,7 @@ resource "random_string" "ressource_id" {
 
 data "aws_sagemaker_prebuilt_ecr_image" "deploy_image" {
   repository_name = local.repository_name
-  image_tag       = var.pytorch_version != null ? local.pytorch_image_tag[local.image_key] : local.tensorflow_image_tag[local.image_key]
+  image_tag       = local.image_tag
 }
 
 # ------------------------------------------------------------------------------
